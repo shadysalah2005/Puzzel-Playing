@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Puzzle: Cybernetic Control</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #0a0e1a 0%, #050510 100%);
+            color: #00d2ff; font-family: 'Courier New', Courier, monospace;
+            overflow: hidden; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+        canvas { cursor: crosshair; }
+        #hud { position: absolute; top: 20px; left: 20px; pointer-events: none; }
+        .controls { position: absolute; bottom: 20px; color: #00d2ff; opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+<div id="hud">
+    <h1 id="title" style="margin:0; text-shadow: 0 0 10px #00d2ff;">AI PUZZLE SYSTEM</h1>
+    <div id="level-info" style="font-size: 1.2rem;">LEVEL 1: 5x5</div>
+</div>
+
+<div class="controls">
+    [DRAG] Data to Slots | [SPACE] Clear Inputs | [R] Reload Level
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<script>
+/**
+ * AI PUZZLE ENGINE
+ * ----------------
+ */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const levelText = document.getElementById('level-info');
+
+let state = {
+    level: 1,
+    gridSize: 5,
+    grid: [],
+    bank: [],
+    dragged: null,
+    dragStart: { x: 0, y: 0 },
+    mouse: { x: 0, y: 0 }
+};
+
+const COLORS = {
+    inactive: '#444',
+    active: '#00d2ff',
+    solved: '#00ff41',
+    wrong: '#ff003c',
+    bg: '#050510'
+};
+
+class Cell {
+    constructor(type, val, isMasked, col, row) {
+        this.type = type; // 'num', 'op', 'eq', 'res', 'slot'
+        this.val = val;
+        this.userVal = null;
+        this.isMasked = isMasked;
+        this.state = 'not_solved'; // not_solved, solved, wrong
+        this.col = col; this.row = row;
+        this.x = 0; this.y = 0;
+        this.size = 60;
+    }
+}
+
+function initGame() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    generateLevel();
+    requestAnimationFrame(loop);
+}
+
+function generateLevel() {
+    state.grid = [];
+    state.bank = [];
+    let neededValues = [];
+
+    for (let r = 0; r < state.gridSize; r++) {
+        let row = [];
+        let equation = createEquation(); // Returns array of {type, val}
+        
+        equation.forEach((item, c) => {
+            let isMasked = (Math.random() > 0.6 && item.type !== 'eq' && item.type !== 'res');
+            let cell = new Cell(item.type, item.val, isMasked, c, r);
+            if (isMasked) {
+                neededValues.push(item.val);
+            }
+            row.push(cell);
+        });
+        state.grid.push(row);
+    }
+
+    // Populate bank with answers + random distractors
+    neededValues.forEach(v => state.bank.push({ val: v, x: 0, y: 0 }));
+    // Add distractors
+    for(let i=0; i<3; i++) state.bank.push({ val: Math.floor(Math.random()*9)+1, x: 0, y: 0 });
+    
+    // Shuffle bank
+    state.bank.sort(() => Math.random() - 0.5);
+}
+
+function createEquation() {
+    let a = Math.floor(Math.random() * 9) + 1;
+    let b = Math.floor(Math.random() * 9) + 1;
+    let ops = ['+', '-', '*', '/'];
+    let op = ops[Math.floor(Math.random() * ops.length)];
+    let res = Math.round(eval(`${a} ${op} ${b}`));
+    
+    return [
+        {type: 'num', val: a},
+        {type: 'op', val: op},
+        {type: 'num', val: b},
+        {type: 'eq', val: '='},
+        {type: 'res', val: res}
+    ];
+}
+
+// Interaction Logic
+window.addEventListener('mousedown', e => {
+    state.bank.forEach((item, i) => {
+        let x = (window.innerWidth/2 - 150) + (i * 50);
+        let y = window.innerHeight - 100;
+        if (Math.hypot(e.clientX - (x+25), e.clientY - (y+25)) < 30) {
+            state.dragged = { ...item, index: i };
+        }
+    });
+});
+
+window.addEventListener('mousemove', e => {
+    state.mouse.x = e.clientX;
+    state.mouse.y = e.clientY;
+});
+
+window.addEventListener('mouseup', () => {
+    if (!state.dragged) return;
+
+    state.grid.forEach(row => row.forEach(cell => {
+        if (cell.isMasked && cell.userVal === null && isOver(state.mouse, cell)) {
+            cell.userVal = state.dragged.val;
+            state.bank.splice(state.dragged.index, 1);
+            validateCell(cell);
+        }
+    }));
+    state.dragged = null;
+});
+
+function isOver(m, c) {
+    return m.x > c.x && m.x < c.x + c.size && m.y > c.y && m.y < c.y + c.size;
+}
+
+function validateCell(cell) {
+    if (cell.userVal == cell.val) {
+        cell.state = 'solved';
+        checkLevel();
+    } else {
+        cell.state = 'wrong';
+        setTimeout(() => {
+            state.bank.push({ val: cell.userVal, x: 0, y: 0 });
+            cell.userVal = null;
+            cell.state = 'not_solved';
+        }, 600);
+    }
+}
+
+function checkLevel() {
+    let allSolved = true;
+    state.grid.forEach(r => r.forEach(c => {
+        if (c.isMasked && c.state !== 'solved') allSolved = false;
+    }));
+    
+    if (allSolved) {
+        state.level++;
+        state.gridSize = Math.min(17, state.gridSize + 2);
+        levelText.innerText = `LEVEL ${state.level}: ${state.gridSize}x${state.gridSize}`;
+        generateLevel();
+    }
+}
+
+// Rendering
+function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let time = Date.now() / 500;
+
+    // Draw Grid
+    const startX = (canvas.width - (state.gridSize * 70)) / 2;
+    state.grid.forEach((row, r) => {
+        row.forEach((cell, c) => {
+            cell.x = startX + c * 70;
+            cell.y = 150 + r * 70;
+            
+            // Draw Box
+            ctx.shadowBlur = cell.state === 'not_solved' && cell.isMasked ? 15 : 5;
+            ctx.shadowColor = cell.isMasked ? COLORS.active : '#333';
+            ctx.strokeStyle = cell.state === 'not_solved' ? COLORS.active : COLORS[cell.state];
+            ctx.lineWidth = 2;
+            ctx.strokeRect(cell.x, cell.y, cell.size, cell.size);
+            
+            // Draw Text
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            let txt = cell.isMasked ? (cell.userVal ?? '?') : cell.val;
+            ctx.fillText(txt, cell.x + 30, cell.y + 35);
+        });
+    });
+
+    // Draw Bank
+    state.bank.forEach((item, i) => {
+        let x = (canvas.width/2 - 150) + (i * 50);
+        let y = canvas.height - 100 + Math.sin(time + i) * 10;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = COLORS.active;
+        ctx.strokeRect(x, y, 40, 40);
+        ctx.fillText(item.val, x + 20, y + 25);
+    });
+
+    // Draw Dragged
+    if (state.dragged) {
+        ctx.fillText(state.dragged.val, state.mouse.x, state.mouse.y);
+    }
+
+    requestAnimationFrame(loop);
+}
+
+initGame();
+</script>
+</body>
+</html>

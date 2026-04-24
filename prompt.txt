@@ -1,0 +1,95 @@
+
+Create a futuristic interactive puzzle game using HTML5 Canvas and JavaScript.
+
+Game Title:
+AI Puzzle - LOCKED / ACTIVE / SOLVED system
+
+Core Idea:
+The game is a number*number grid of puzzle blocks . Each row or coloumn of blocks contains a simple math equation like:
+
+4 + ? = 9 or ? * 10 + ? / 5 =43 eaxh item in solo block -> (4,+,?,=,9) 
+
+The player must drag  numbers into the missing position (?) to complete the equation.
+
+Game States:
+Each block has 2 states:
+
+1. not_solved (gray, active block)
+2. SOLVED (green glowing, completed block)
+
+
+Gameplay Logic:
+- Only the not_solved block allows dragging numbers into it.
+- available numbers exist in box under the grid of puzzle and can be dragged.
+- When a number is not_dropped and below it there empty block, block is become bright neon blue .
+- When a number is dropped into the correct empty block:
+    - If correct:
+    - Block becomes SOLVED (green)
+    - If not correct:
+    - Block becomes not_SOLVED (bright neon red)
+-after finish the level go to next level
+
+Equations:
+at least 5*5 blocks and increas by level 2 block for row and coloumn like 7*7 ,9*9,11*11,13*13,15*15,17*17,...
+make 3 levels
+create equaitions like:
+    level_1:{
+        created before start game:
+            (right_random_number_1_1,random_operations(+,-,*,/)_1_1,right_random_number_1_2,=,result_1)
+            (right_random_number_2_1,random_operations(+,-,*,/)_2_1,right_random_number_2_2,=,result_2)
+            (right_random_number_3_1,random_operations(+,-,*,/)_3_1,right_random_number_3_2,=,result_3)
+            (right_random_number_4_1,random_operations(+,-,*,/)_4_1,right_random_number_4_2,=,result_4)
+            (right_random_number_5_1,random_operations(+,-,*,/)_5_1,right_random_number_5_2,=,result_5)
+        user see:
+            game:
+                (right_random_number_1_1,random_operations(+,-,*,/)_1_1,right_random_number_1_2,=,?)
+                (right_random_number_2_1,?,right_random_number_2_2,=,result_2)
+                (right_random_number_3_1,random_operations(+,-,*,/)_3_1,?,=,result_3)
+                (?,random_operations(+,-,*,/)_4_1,right_random_number_4_2,=,result_4)
+                (right_random_number_5_1,?,right_random_number_5_2,=,result_5)
+            choices can drop:
+                [result_1,result_2,random_operations(+,-,*,/)_2_1,right_random_number_3_2,right_random_number_4_1,random_operations(+,-,*,/)_5_1]
+    }
+Visual Style:
+- Dark cyberpunk / sci-fi UI
+- Deep blue radial gradient background
+- Neon glow effects for ACTIVE blocks (blue)
+- Soft green glow for SOLVED blocks
+- Strong visual contrast between states
+
+Grid Design:
+- number*number large puzzle blocks
+- Clear spacing between blocks
+- Strong glowing borders separating blocks
+- Subtle inner grid lines for structure
+
+Animations:
+- Floating numbers gently animate (hover motion using sine wave)
+- ACTIVE block has pulsing neon glow
+- Smooth transitions between not_solved → SOLVED
+- Glow effect on correct placements
+
+UI/UX Feel:
+- Looks like a futuristic AI control panel
+- Inspired by sci-fi dashboards / spaceship interfaces
+- Clean, minimal, high-tech design
+- Clear hierarchy between active and inactive elements
+
+Controls:
+- Mouse drag & drop numbers
+- ENTER key validates current block
+- SPACE resets current block input
+- R reloads game (optional)
+
+Technical Requirements:
+- Use only HTML5 Canvas + vanilla JavaScript
+- No external libraries
+- Fully self-contained single HTML file
+- Maintain state system for blocks (not_solved / SOLVED)
+- Use basic physics/animation for  numbers when  hand its
+
+notes:
+if the number or operator is droped and true removed from choice if not return it to choices
+
+Output:
+Return a complete working HTML file implementing this game exactly with all logic, rendering, and interaction included.
