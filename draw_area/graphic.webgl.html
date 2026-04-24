@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI Puzzle Grid</title>
+
+<style>
+body {
+    margin: 0;
+    background: radial-gradient(circle, #050816, #000);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: monospace;
+}
+
+canvas {
+    box-shadow: 0 0 60px #00f7ff33;
+    border-radius: 12px;
+}
+</style>
+
+</head>
+<body>
+
+<canvas id="game" width="540" height="540"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const size = 540;
+const cell = size / 9;
+
+// أرقام وعمليات عشوائية
+const symbols = ["+", "-", "*", "/", "7", "3", "9", "2", "5", "8"];
+
+function randomSymbol() {
+    return symbols[Math.floor(Math.random() * symbols.length)];
+}
+
+// الخلفية
+ctx.fillStyle = "#020617";
+ctx.fillRect(0, 0, size, size);
+
+// glow helper
+function glow(color, blur) {
+    ctx.shadowColor = color;
+    ctx.shadowBlur = blur;
+}
+
+// تحديد المربع الأوسط (3x3 في النص)
+function isCenterBlock(i, j) {
+    return i >= 3 && i <= 5 && j >= 3 && j <= 5;
+}
+
+// رسم الخلايا
+for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+
+        let x = j * cell;
+        let y = i * cell;
+
+        let active = isCenterBlock(i, j);
+
+        // لون حسب الحالة
+        if (active) {
+            ctx.fillStyle = "#0b1b2b"; // المربع النشط
+        } else {
+            ctx.fillStyle = "#020617"; // مطفي
+        }
+
+        ctx.fillRect(x, y, cell, cell);
+
+        // glow فقط للنشط
+        if (active) {
+            glow("#00f7ff", 10);
+            ctx.strokeStyle = "#00f7ff";
+        } else {
+            glow("#001a22", 2);
+            ctx.strokeStyle = "#001a22";
+        }
+
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, cell, cell);
+
+        // أرقام / عمليات حسابية
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = active ? "#00f7ff" : "#0a3a44";
+        ctx.font = "20px monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        let value = randomSymbol();
+        ctx.fillText(value, x + cell/2, y + cell/2);
+    }
+}
+
+// خطوط 3x3 الكبيرة
+for (let i = 0; i <= 9; i++) {
+
+    let thick = (i % 3 === 0);
+
+    ctx.lineWidth = thick ? 3 : 1;
+
+    ctx.strokeStyle = thick ? "#00f7ff" : "#003344";
+
+    glow("#00f7ff", thick ? 12 : 3);
+
+    // vertical
+    ctx.beginPath();
+    ctx.moveTo(i * cell, 0);
+    ctx.lineTo(i * cell, size);
+    ctx.stroke();
+
+    // horizontal
+    ctx.beginPath();
+    ctx.moveTo(0, i * cell);
+    ctx.lineTo(size, i * cell);
+    ctx.stroke();
+}
+
+</script>
+
+</body>
+</html>
