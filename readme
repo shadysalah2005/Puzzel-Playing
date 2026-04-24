@@ -1,0 +1,86 @@
+Create a futuristic interactive puzzle game using HTML5 Canvas and JavaScript.
+
+Game Title:
+AI Puzzle - LOCKED / ACTIVE / SOLVED system
+
+Core Idea:
+The game is a 3x3 grid of puzzle blocks (9 total blocks). Each block contains a simple math equation like:
+
+4 + ? = 9
+
+The player must drag floating numbers into the missing position (?) to complete the equation.
+
+Game States:
+Each block has 3 states:
+
+1. LOCKED (gray, inactive, cannot interact)
+2. ACTIVE (bright neon blue, current playable block)
+3. SOLVED (green glowing, completed block)
+
+Only ACTIVE block is interactive.
+
+Gameplay Logic:
+- Only the ACTIVE block allows dragging numbers into it.
+- Floating numbers exist outside the grid and can be dragged.
+- When a number is dropped into the correct empty slot, it is inserted into the equation.
+- After placement, the system validates the equation.
+- If correct:
+  - Block becomes SOLVED (green)
+  - Next block becomes ACTIVE
+
+Equations:
+Block 1: 4 + 5 = 9
+Block 2: 3 + 6 = 9
+Block 3: 2 + 7 = 9
+Block 4: 1 + 8 = 9
+Block 5: 0 + 9 = 9
+Block 6: 8 - 3 = 5
+
+Visual Style:
+- Dark cyberpunk / sci-fi UI
+- Deep blue radial gradient background
+- Neon glow effects for ACTIVE blocks (blue)
+- Soft green glow for SOLVED blocks
+- LOCKED blocks are dark muted gray-blue
+- Strong visual contrast between states
+
+Grid Design:
+- 3x3 large puzzle blocks
+- Clear spacing between blocks
+- Strong glowing borders separating blocks
+- Subtle inner grid lines for structure
+
+Animations:
+- Floating numbers gently animate (hover motion using sine wave)
+- ACTIVE block has pulsing neon glow
+- Smooth transitions between LOCKED → ACTIVE → SOLVED
+- Glow effect on correct placements
+
+UI/UX Feel:
+- Looks like a futuristic AI control panel
+- Inspired by sci-fi dashboards / spaceship interfaces
+- Clean, minimal, high-tech design
+- Clear hierarchy between active and inactive elements
+
+Controls:
+- Mouse drag & drop numbers
+- ENTER key validates current block
+- SPACE resets current block input
+- R reloads game (optional)
+
+Technical Requirements:
+- Use only HTML5 Canvas + vanilla JavaScript
+- No external libraries
+- Fully self-contained single HTML file
+- Maintain state system for blocks (LOCKED / ACTIVE / SOLVED)
+- Use basic physics/animation for floating numbers
+
+Key Feature:
+The ACTIVE block must visually stand out strongly using:
+- neon blue glow
+- stronger borders
+- brighter background tint
+while LOCKED blocks remain dark and subdued.
+
+Output:
+Return a complete working HTML file implementing this game exactly with all logic, rendering, and interaction included.
